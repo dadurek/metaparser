@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, Dict, List
 
 import eyed3  # type: ignore
 import eyed3.mp3  # type: ignore
@@ -46,11 +46,11 @@ class Mp3Parser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.tag = None
+        self.__tag = None
 
     def parse(self, filename: str) -> None:
-        audiofile = eyed3.load(filename)
-        self.tag = audiofile.tag
+        file = eyed3.load(filename)
+        self.__tag = file.tag
 
     def get_fields(self) -> List[str]:
         return [
@@ -88,28 +88,29 @@ class Mp3Parser(BaseParser):
             FIELD_TERMS_OF_USE,
         ]
 
-    def edit_field(self, field: str, value: Any) -> None:
-        if self.tag is None:
+    def set_field(self, field: str, value: Any) -> None:
+        if self.__tag is None:
             raise TypeError("Tag is null, parse the file first")
         if field not in self.get_fields():
             raise KeyError("Field not present in parser")
-        setattr(self.tag, field, value)
-        self.tag.save()
+        setattr(self.__tag, field, value)
 
-    def scrape(self):
-        self.tag.clear()
-        self.tag.save()
+    def clear(self):
+        self.__tag.clear()
 
-    def print(self):
-        print(
-            "Showing ID3 version"
-            + ": "
-            + ".".join([str(num) for num in getattr(self.tag, "version", None)])
-        )
-        print("Showing only not None fields")
-        print("-------------------------------------")
+    def delete_field(self, field: str) -> None:
+        self.set_field(field, None)
+
+    def get_all_values(self) -> Dict[str, str]:
+        if self.__tag is None:
+            raise TypeError("Tag is null, parse the file first")
+        values = {}
         for field in self.get_fields():
-            value = getattr(self.tag, field, None)
-            if value is not None:
-                print(field + ": " + str(value))
-        print("-------------------------------------")
+            if hasattr(self.__tag, field):
+                attr = getattr(self.__tag, field, None)
+                if attr is not None and (isinstance(attr, tuple) and any(attr)):
+                    values[field] = attr
+        return values
+
+    def write(self) -> None:
+        self.__tag.save()  # type: ignore

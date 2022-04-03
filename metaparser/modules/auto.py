@@ -9,14 +9,12 @@ from .mp3 import Mp3Parser
 
 PARSERS = [ExifParser, Mp3Parser]
 
-log = logging.getLogger(__name__)
-
 
 class ParserFactory:
     @staticmethod
     def get_parser_for_file(filename: str) -> Optional[Type[BaseParser]]:
         mime = magic.from_file(filename, mime=True)
-        log.debug("Detected MIME type '%s' for file '%s'", mime, filename)
+        logging.debug("Detected MIME type '%s' for file '%s'", mime, filename)
 
         return ParserFactory.get_parser(mime)
 
