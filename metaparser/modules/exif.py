@@ -4,12 +4,15 @@ from typing import List, Optional
 from PIL import Image  # type: ignore
 
 from .base import BaseParser
-from .constants import FIELD_AUTHOR, FIELD_CREATE_DATE
+
+FIELD_AUTHOR = "author"
+FIELD_CREATE_DATE = "create_date"
 
 
 class ExifParser(BaseParser):
     autor: Optional[str]
     create_date: Optional[datetime]
+
     # TODO: Add more fields
 
     def __init__(self) -> None:
