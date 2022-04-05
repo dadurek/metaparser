@@ -67,6 +67,9 @@ def detect_file(file, verbose, debug):
                 path = os.path.join(root, file)
                 mime = magic.from_file(path, mime=True)
                 print(f"{path}: {mime}")
+    else:
+        mime = magic.from_file(file, mime=True)
+        print(f"{file}: {mime}")
 
 
 @cli.command("fields")
@@ -323,7 +326,7 @@ def print_file(file, verbose, debug):
         parser.print()
 
 
-def entrypoint():
+def entry_point():
     try:
         cli()
     except Exception:
