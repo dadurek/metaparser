@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Dict, List, Optional
 
 import eyed3  # type: ignore
 import eyed3.mp3  # type: ignore
@@ -88,7 +88,7 @@ class Mp3Parser(BaseParser):
             FIELD_TERMS_OF_USE,
         ]
 
-    def set_field(self, field: str, value: Any) -> None:
+    def set_field(self, field: str, value: Optional[str]) -> None:
         if self.__tag is None:
             raise TypeError("Tag is null, parse the file first")
         if field not in self.get_fields():

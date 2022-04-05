@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Dict, List, Optional
 
 
 class BaseParser(ABC):
@@ -20,7 +20,7 @@ class BaseParser(ABC):
         if field not in self.get_fields():
             raise KeyError("Field not present in parser")
 
-    def set_field(self, field: str, value: Any) -> None:
+    def set_field(self, field: str, value: Optional[str]) -> None:
         if field not in self.get_fields():
             raise KeyError("Field not present in parser")
 
@@ -33,7 +33,12 @@ class BaseParser(ABC):
             self.delete_field(field)
 
     def print(self) -> None:
-        for v, k in self.get_all_values().items():
+        items = self.get_all_values().items()
+        if len(items) == 0:
+            print("No metadata found")
+            return
+
+        for v, k in items:
             print(f"{v}: {k}")
 
     @abstractmethod
