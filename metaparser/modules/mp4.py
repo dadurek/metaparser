@@ -32,6 +32,7 @@ FIELD_BPM = "bpm"
 FIELD_TRACKNUMBER = "tracknumber"
 FIELD_DISCNUMBER = "discnumber"
 
+
 class Mp4Parser(BaseParser):
     @staticmethod
     def supported_mimes() -> List[str]:
@@ -39,11 +40,10 @@ class Mp4Parser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__tag = None
+        self.__file = None
 
     def parse(self, filename: str) -> None:
-        file = mutagen.File(filename, easy=True)
-        self.__tag = file.tags.items()
+        self.__file = mutagen.easymp4.EasyMP4(filename)
 
     def get_fields(self) -> List[str]:
         return [
@@ -76,29 +76,26 @@ class Mp4Parser(BaseParser):
         ]
 
     def set_field(self, field: str, value: Any) -> None:
-        if self.__tag is None:
-            raise TypeError("Tag is null, parse the file first")
         if field not in self.get_fields():
             raise KeyError("Field not present in parser")
-        setattr(self.__tag, field, value)
-        # other way of saving
+        self.__file.tags[field] = value
 
     def clear(self):
-        self.__tag.clear()
+        self.__file.tags.clear()
 
     def delete_field(self, field: str) -> None:
-        self.set_field(field, None)
+        if field not in self.get_fields():
+            raise KeyError("Field not present in parser")
+        if field not in dict(self.__file.tags).keys():
+            raise KeyError("Field not present in file")
+        self.__file.tags.pop(field)
 
     def get_all_values(self) -> Dict[str, str]:
-        if self.__tag is None:
-            raise TypeError("Tag is null, parse the file first")
         values = {}
-        for field in self.get_fields():
-            if field in self.__tag:
-                attr = getattr(self.__tag, field, None)
-                if attr is not None and (isinstance(attr, tuple) and any(attr)):
-                    values[field] = attr
+        for k, v in dict(self.__file.tags).items():
+            if k in self.get_fields():
+                values[k] = v
         return values
 
     def write(self) -> None:
-        self.__tag.save()  # type: ignore
+        self.__file.save()
