@@ -5,6 +5,7 @@ import xml.etree.ElementTree
 
 from .base import BaseParser
 
+# TODO to doemthing with does FIELDS so provided value will be only 'title' - use dictionary
 FIELD_COREPROPERTIES = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties"
 FIELD_TITLE = "{http://purl.org/dc/elements/1.1/}title"
 FIELD_SUBJECT = "{http://purl.org/dc/elements/1.1/}subject"
@@ -16,6 +17,7 @@ FIELD_REVISION = "{http://schemas.openxmlformats.org/package/2006/metadata/core-
 FIELD_CREATED = "{http://purl.org/dc/terms/}created"
 FIELD_MODIFIED = "{http://purl.org/dc/terms/}modified"
 
+XML_LOCATION = 'docProps/core.xml'
 
 class OpenXmlParser(BaseParser):
     @staticmethod
@@ -25,12 +27,13 @@ class OpenXmlParser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__zf = None
         self.__et = None
+        self.__path = None
 
     def parse(self, filename: str) -> None:
-        self.__zf = zipfile.ZipFile(filename)
-        self.__et = xml.etree.ElementTree.fromstring(self.__zf.read('docProps/core.xml'))
+        zf = zipfile.ZipFile(filename)
+        self.__et = xml.etree.ElementTree.fromstring(zf.read(XML_LOCATION))
+        self.__path = filename
 
     def get_fields(self) -> List[str]:
         return [
@@ -67,5 +70,7 @@ class OpenXmlParser(BaseParser):
         return values
 
     def write(self) -> None:
-
-        pass
+        xml_string = xml.etree.ElementTree.tostring(self.__et, encoding='utf8', method='xml')
+        with zipfile.ZipFile(self.__path, 'w') as myzip:
+            myzip.writestr(XML_LOCATION, data=xml_string)
+        # TODO fix saving to .docx instead of zip
