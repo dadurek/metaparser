@@ -50,6 +50,7 @@ class OpenXmlParser(BaseParser):
         ]
 
     def set_field(self, field: str, value: Optional[str]) -> None:
+        super().set_field(field, value)
         for elem in self.__et.iter():
             if elem.tag is field:
                 elem.text = value
@@ -59,6 +60,7 @@ class OpenXmlParser(BaseParser):
             elem.text = ""
 
     def delete_field(self, field: str) -> None:
+        super().delete_field(field)
         for elem in self.__et.iter():
             if elem.tag is field:
                 elem.text = ""
