@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from metaparser.__main__ import entrypoint
+from metaparser.__main__ import entry_point
 
 if __name__ == "__main__":
-    entrypoint()
+    entry_point()
