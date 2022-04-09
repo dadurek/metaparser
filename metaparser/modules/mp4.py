@@ -76,16 +76,14 @@ class Mp4Parser(BaseParser):
         ]
 
     def set_field(self, field: str, value: Any) -> None:
-        if field not in self.get_fields():
-            raise KeyError("Field not present in parser")
+        super().set_field(field, value)
         self.__file.tags[field] = value
 
     def clear(self):
         self.__file.tags.clear()
 
     def delete_field(self, field: str) -> None:
-        if field not in self.get_fields():
-            raise KeyError("Field not present in parser")
+        super().delete_field(field)
         if field not in dict(self.__file.tags).keys():
             raise KeyError("Field not present in file")
         self.__file.tags.pop(field)
