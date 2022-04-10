@@ -1,9 +1,9 @@
 from typing import Dict, List, Optional
 
-import shutil
-import zipfile
-import tempfile
-import xml.etree.ElementTree
+import shutil  # type: ignore
+import zipfile  # type: ignore
+import tempfile  # type: ignore
+import xml.etree.ElementTree  # type: ignore
 
 from .base import BaseParser
 
@@ -20,25 +20,27 @@ FIELD_MODIFIED = "modified"
 
 XML_LOCATION = 'docProps/core.xml'
 XML_DECLARATION = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
-NAMESPACES = {
-    'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-    'dc': 'http://purl.org/dc/elements/1.1/',
-    'dcmitype': 'http://purl.org/dc/dcmitype/',
-    'dcterms': 'http://purl.org/dc/terms/',
-    'dcmitype': 'http://purl.org/dc/dcmitype/',
-    'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+NAMESPACES = \
+    {
+        'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+        'dc': 'http://purl.org/dc/elements/1.1/',
+        'dcmitype': 'http://purl.org/dc/dcmitype/',
+        'dcterms': 'http://purl.org/dc/terms/',
+        'dcmitype': 'http://purl.org/dc/dcmitype/',
+        'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
     }
+
 
 class OpenXmlParser(BaseParser):
     @staticmethod
     def supported_mimes() -> List[str]:
-        return ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", # docx
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.template", # dotx
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", # xlsx
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.template", #xltx
-                "application/vnd.openxmlformats-officedocument.presentationml.presentation", # pptx
-                "application/vnd.openxmlformats-officedocument.presentationml.template", #potx
-                "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+        return ["application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # docx
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.template",  # dotx
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # xlsx
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.template",  # xltx
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",  # pptx
+                "application/vnd.openxmlformats-officedocument.presentationml.template",  # potx
+                "application/vnd.openxmlformats-officedocument.presentationml.slideshow",  # ppsx
                 ]
 
     def __init__(self) -> None:
@@ -70,7 +72,7 @@ class OpenXmlParser(BaseParser):
     def set_field(self, field: str, value: Optional[str]) -> None:
         super().set_field(field, value)
         for elem in self.__tree.iter():
-            if elem.tag.endswith(field): # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
+            if elem.tag.endswith(field):  # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
                 elem.text = value
 
     def clear(self):
@@ -80,7 +82,7 @@ class OpenXmlParser(BaseParser):
     def delete_field(self, field: str) -> None:
         super().delete_field(field)
         for elem in self.__tree.iter():
-            if elem.tag.endswith(field): #
+            if elem.tag.endswith(field):
                 elem.text = ""
 
     def get_all_values(self) -> Dict[str, str]:
