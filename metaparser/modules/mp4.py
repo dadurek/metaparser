@@ -40,7 +40,7 @@ class Mp4Parser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__file = None
+        self.__file : mutagen.easymp4.EasyMP4
 
     def parse(self, filename: str) -> None:
         self.__file = mutagen.easymp4.EasyMP4(filename)
