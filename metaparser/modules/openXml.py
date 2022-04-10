@@ -71,8 +71,7 @@ class OpenXmlParser(BaseParser):
     def set_field(self, field: str, value: Optional[str]) -> None:
         super().set_field(field, value)
         for elem in self.__tree.iter():
-            if elem.tag.endswith(
-                    field):  # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
+            if elem.tag.endswith(field):  # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
                 elem.text = value
 
     def clear(self):
