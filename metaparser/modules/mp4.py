@@ -8,29 +8,29 @@ from .base import BaseParser
 FIELD_TITLE = "title"
 FIELD_ALBUM = "album"
 FIELD_ARTIST = "artist"
-FIELD_ALBUMARTIST = "albumartist"
+FIELD_ALBUM_ARTIST = "albumartist"
 FIELD_DATE = "date"
 FIELD_COMMENT = "comment"
 FIELD_DESCRIPTION = "description"
 FIELD_GROUPING = "grouping"
 FIELD_GENRE = "genre"
 FIELD_COPYRIGHT = "copyright"
-FIELD_ALBUMSORT = "albumsort"
-FIELD_ALBUMARTISTSORT = "albumartistsort"
-FIELD_ARTISTSORT = "artistsort"
-FIELD_TITLESORT = "titlesort"
-FIELD_COMPOSERSORT = "composersort"
-FIELD_MUSICBRAINZ_ARTISTID = "musicbrainz_artistid"
-FIELD_MUSICBRAINZ_TRACKID = "musicbrainz_trackid"
-FIELD_MUSICBRAINZ_ALBUMID = "musicbrainz_albumid"
-FIELD_MUSICBRAINZ_ALBUMARTISTID = "musicbrainz_albumartistid"
+FIELD_ALBUM_SORT = "albumsort"
+FIELD_ALBUM_ARTIST_SORT = "albumartistsort"
+FIELD_ARTIST_SORT = "artistsort"
+FIELD_TITLE_SORT = "titlesort"
+FIELD_COMPOSER_SORT = "composersort"
+FIELD_MUSICBRAINZ_ARTIST_ID = "musicbrainz_artistid"
+FIELD_MUSICBRAINZ_TRACK_ID = "musicbrainz_trackid"
+FIELD_MUSICBRAINZ_ALBUM_ID = "musicbrainz_albumid"
+FIELD_MUSICBRAINZ_ALBUM_ARTIST_ID = "musicbrainz_albumartistid"
 FIELD_MUSICIP_PUID = "musicip_puid"
-FIELD_MUSICBRAINZ_ALBUMSTATUS = "musicbrainz_albumstatus"
-FIELD_MUSICBRAINZ_ALBUMTYPE = "musicbrainz_albumtype"
-FIELD_RELEASECOUNTRY = "releasecountry"
+FIELD_MUSICBRAINZ_ALBUM_STATUS = "musicbrainz_albumstatus"
+FIELD_MUSICBRAINZ_ALBUM_TYPE = "musicbrainz_albumtype"
+FIELD_RELEASE_COUNTRY = "releasecountry"
 FIELD_BPM = "bpm"
-FIELD_TRACKNUMBER = "tracknumber"
-FIELD_DISCNUMBER = "discnumber"
+FIELD_TRACK_NUMBER = "tracknumber"
+FIELD_DISC_NUMBER = "discnumber"
 
 
 class Mp4Parser(BaseParser):
@@ -40,7 +40,7 @@ class Mp4Parser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__file : mutagen.easymp4.EasyMP4
+        self.__file: mutagen.easymp4.EasyMP4
 
     def parse(self, filename: str) -> None:
         self.__file = mutagen.easymp4.EasyMP4(filename)
@@ -50,29 +50,29 @@ class Mp4Parser(BaseParser):
             FIELD_TITLE,
             FIELD_ALBUM,
             FIELD_ARTIST,
-            FIELD_ALBUMARTIST,
+            FIELD_ALBUM_ARTIST,
             FIELD_DATE,
             FIELD_COMMENT,
             FIELD_DESCRIPTION,
             FIELD_GROUPING,
             FIELD_GENRE,
             FIELD_COPYRIGHT,
-            FIELD_ALBUMSORT,
-            FIELD_ALBUMARTISTSORT,
-            FIELD_ARTISTSORT,
-            FIELD_TITLESORT,
-            FIELD_COMPOSERSORT,
-            FIELD_MUSICBRAINZ_ARTISTID,
-            FIELD_MUSICBRAINZ_TRACKID,
-            FIELD_MUSICBRAINZ_ALBUMID,
-            FIELD_MUSICBRAINZ_ALBUMARTISTID,
+            FIELD_ALBUM_SORT,
+            FIELD_ALBUM_ARTIST_SORT,
+            FIELD_ARTIST_SORT,
+            FIELD_TITLE_SORT,
+            FIELD_COMPOSER_SORT,
+            FIELD_MUSICBRAINZ_ARTIST_ID,
+            FIELD_MUSICBRAINZ_TRACK_ID,
+            FIELD_MUSICBRAINZ_ALBUM_ID,
+            FIELD_MUSICBRAINZ_ALBUM_ARTIST_ID,
             FIELD_MUSICIP_PUID,
-            FIELD_MUSICBRAINZ_ALBUMSTATUS,
-            FIELD_MUSICBRAINZ_ALBUMTYPE,
-            FIELD_RELEASECOUNTRY,
+            FIELD_MUSICBRAINZ_ALBUM_STATUS,
+            FIELD_MUSICBRAINZ_ALBUM_TYPE,
+            FIELD_RELEASE_COUNTRY,
             FIELD_BPM,
-            FIELD_TRACKNUMBER,
-            FIELD_DISCNUMBER,
+            FIELD_TRACK_NUMBER,
+            FIELD_DISC_NUMBER,
         ]
 
     def set_field(self, field: str, value: Any) -> None:
