@@ -6,8 +6,8 @@ import magic  # type: ignore
 from .base import BaseParser
 from .exif import ExifParser
 from .mp3 import Mp3Parser
-from .pdf import PDFParser
 from .openXml import OpenXmlParser
+from .pdf import PDFParser
 
 PARSERS = [ExifParser, Mp3Parser, PDFParser, OpenXmlParser]
 
