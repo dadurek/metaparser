@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
-import mutagen
-import mutagen.easymp4
+import mutagen  # type: ignore
+import mutagen.easymp4  # type: ignore
 
 from .base import BaseParser
 
