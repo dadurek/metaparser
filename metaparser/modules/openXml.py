@@ -1,9 +1,8 @@
-from typing import Dict, List, Optional
-
 import shutil  # type: ignore
-import zipfile  # type: ignore
 import tempfile  # type: ignore
 import xml.etree.ElementTree  # type: ignore
+import zipfile  # type: ignore
+from typing import Dict, List, Optional
 
 from .base import BaseParser
 
@@ -18,16 +17,16 @@ FIELD_REVISION = "revision"
 FIELD_CREATED = "created"
 FIELD_MODIFIED = "modified"
 
-XML_LOCATION = 'docProps/core.xml'
+XML_LOCATION = "docProps/core.xml"
 XML_DECLARATION = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
 NAMESPACES = \
     {
-        'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-        'dc': 'http://purl.org/dc/elements/1.1/',
-        'dcmitype': 'http://purl.org/dc/dcmitype/',
-        'dcterms': 'http://purl.org/dc/terms/',
-        'dcmitype': 'http://purl.org/dc/dcmitype/',
-        'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+        "cp": "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "dcmitype": "http://purl.org/dc/dcmitype/",
+        "dcterms": "http://purl.org/dc/terms/",
+        "dcmitype": "http://purl.org/dc/dcmitype/",
+        "xsi": "http://www.w3.org/2001/XMLSchema-instance"
     }
 
 
@@ -45,8 +44,8 @@ class OpenXmlParser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__tree = None
-        self.__path = None
+        self.__tree: xml.etree.ElementTree.ElementTree
+        self.__path: str
 
     def parse(self, filename: str) -> None:
         xml_string = zipfile.ZipFile(filename).read(XML_LOCATION)
@@ -72,7 +71,8 @@ class OpenXmlParser(BaseParser):
     def set_field(self, field: str, value: Optional[str]) -> None:
         super().set_field(field, value)
         for elem in self.__tree.iter():
-            if elem.tag.endswith(field):  # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
+            if elem.tag.endswith(
+                    field):  # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
                 elem.text = value
 
     def clear(self):
