@@ -1,43 +1,61 @@
 from typing import Dict, List, Optional
 
+import shutil
 import zipfile
+import tempfile
 import xml.etree.ElementTree
 
 from .base import BaseParser
 
-# TODO to doemthing with does FIELDS so provided value will be only 'title' - use dictionary
-FIELD_COREPROPERTIES = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties"
-FIELD_TITLE = "{http://purl.org/dc/elements/1.1/}title"
-FIELD_SUBJECT = "{http://purl.org/dc/elements/1.1/}subject"
-FIELD_CREATOR = "{http://purl.org/dc/elements/1.1/}creator"
-FIELD_KEYWORDS = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}keywords"
-FIELD_DESCRIPTION = "{http://purl.org/dc/elements/1.1/}description"
-FIELD_LASTMODIFIEDBY = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}lastModifiedBy"
-FIELD_REVISION = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}revision"
-FIELD_CREATED = "{http://purl.org/dc/terms/}created"
-FIELD_MODIFIED = "{http://purl.org/dc/terms/}modified"
+FIELD_CORE_PROPERTIES = "coreProperties"
+FIELD_TITLE = "title"
+FIELD_SUBJECT = "subject"
+FIELD_CREATOR = "creator"
+FIELD_KEYWORDS = "keywords"
+FIELD_DESCRIPTION = "description"
+FIELD_LASTMODIFIEDBY = "lastModifiedBy"
+FIELD_REVISION = "revision"
+FIELD_CREATED = "created"
+FIELD_MODIFIED = "modified"
 
 XML_LOCATION = 'docProps/core.xml'
+XML_DECLARATION = "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
+NAMESPACES = {
+    'cp': 'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+    'dc': 'http://purl.org/dc/elements/1.1/',
+    'dcmitype': 'http://purl.org/dc/dcmitype/',
+    'dcterms': 'http://purl.org/dc/terms/',
+    'dcmitype': 'http://purl.org/dc/dcmitype/',
+    'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
+    }
 
 class OpenXmlParser(BaseParser):
     @staticmethod
     def supported_mimes() -> List[str]:
-        return ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
-        # TODO add all supported types OR simpe refex with application/vnd.openxmlformats.*
+        return ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", # docx
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.template", # dotx
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", # xlsx
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.template", #xltx
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation", # pptx
+                "application/vnd.openxmlformats-officedocument.presentationml.template", #potx
+                "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
+                ]
 
     def __init__(self) -> None:
         super().__init__()
-        self.__et = None
+        self.__tree = None
         self.__path = None
 
     def parse(self, filename: str) -> None:
-        zf = zipfile.ZipFile(filename)
-        self.__et = xml.etree.ElementTree.fromstring(zf.read(XML_LOCATION))
+        xml_string = zipfile.ZipFile(filename).read(XML_LOCATION)
+        self.__tree = xml.etree.ElementTree.fromstring(xml_string)
         self.__path = filename
+        for key, value in NAMESPACES.items():
+            xml.etree.ElementTree.register_namespace(key, value)
 
     def get_fields(self) -> List[str]:
         return [
-            FIELD_COREPROPERTIES,
+            FIELD_CORE_PROPERTIES,
             FIELD_TITLE,
             FIELD_SUBJECT,
             FIELD_CREATOR,
@@ -51,28 +69,39 @@ class OpenXmlParser(BaseParser):
 
     def set_field(self, field: str, value: Optional[str]) -> None:
         super().set_field(field, value)
-        for elem in self.__et.iter():
-            if elem.tag is field:
+        for elem in self.__tree.iter():
+            if elem.tag.endswith(field): # real tags are more complex - eg. '{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}coreProperties' so we check only end
                 elem.text = value
 
     def clear(self):
-        for elem in self.__et.iter():
+        for elem in self.__tree.iter():
             elem.text = ""
 
     def delete_field(self, field: str) -> None:
         super().delete_field(field)
-        for elem in self.__et.iter():
-            if elem.tag is field:
+        for elem in self.__tree.iter():
+            if elem.tag.endswith(field): #
                 elem.text = ""
 
     def get_all_values(self) -> Dict[str, str]:
         values = {}
-        for elem in self.__et.iter():
+        for elem in self.__tree.iter():
             values[elem.tag] = elem.text
         return values
 
     def write(self) -> None:
-        xml_string = xml.etree.ElementTree.tostring(self.__et, encoding='utf8', method='xml')
-        with zipfile.ZipFile(self.__path, 'w') as myzip:
-            myzip.writestr(XML_LOCATION, data=xml_string)
-        # TODO fix saving to .docx instead of zip
+        xmlString = xml.etree.ElementTree.tostring(self.__tree).decode("utf-8")
+        xmlString = XML_DECLARATION + xmlString
+
+        temp = tempfile.NamedTemporaryFile()
+        shutil.copyfile(self.__path, temp.name)
+
+        with zipfile.ZipFile(temp) as inZip, zipfile.ZipFile(self.__path, "w") as outZip:
+            for inZipInfo in inZip.infolist():
+                with inZip.open(inZipInfo) as infile:
+                    if inZipInfo.filename == XML_LOCATION:
+                        content = xmlString
+                        outZip.writestr(inZipInfo.filename, content)
+                    else:
+                        content = infile.read()
+                        outZip.writestr(inZipInfo.filename, content)
