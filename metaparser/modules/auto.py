@@ -7,8 +7,8 @@ from .base import BaseParser
 from .exif import ExifParser
 from .mp3 import Mp3Parser
 from .mp4 import Mp4Parser
-from .pdf import PDFParser
 from .openXml import OpenXmlParser
+from .pdf import PDFParser
 
 PARSERS = [ExifParser, Mp3Parser, PDFParser, Mp4Parser, OpenXmlParser]
 
