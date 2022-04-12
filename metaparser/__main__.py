@@ -12,19 +12,6 @@ logging.basicConfig(
     level="ERROR",
 )
 
-# create a CLI application using click
-# usage: metaparser OPTIONS CMD
-# OPTIONS:
-#  -f,--file - file or directory
-#  -r,--recursive
-# CMD:
-# - detect
-# - fields
-# - set FIELD VALUE
-# - delete FIELD
-# - delete-all
-# - print
-
 
 @click.group()
 def cli():

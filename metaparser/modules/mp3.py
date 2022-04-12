@@ -37,6 +37,7 @@ FIELD_RECORDING_DATE = "recording_date"
 FIELD_RELEASE_DATE = "release_date"
 FIELD_TAGGING_DATE = "tagging_date"
 FIELD_TERMS_OF_USE = "terms_of_use"
+FIELD_IMAGE = "images"
 
 
 class Mp3Parser(BaseParser):
@@ -47,10 +48,25 @@ class Mp3Parser(BaseParser):
     def __init__(self) -> None:
         super().__init__()
         self.__tag = None
+        self.filename: str = ""
 
     def parse(self, filename: str) -> None:
         file = eyed3.load(filename)
+        self.filename = filename
         self.__tag = file.tag
+        if getattr(self.__tag, FIELD_IMAGE, []):
+            print("There might be some images in mp3 file, use print to extract")
+
+    def save_image(self):
+        if getattr(self.__tag, FIELD_IMAGE, None) is None:
+            raise KeyError("No image embbeded in mp3 file")
+        iterator = 1
+        for image in self.__tag.images:
+            image_file = open("{0}-image-{1}.jpg".format(self.filename, iterator), "wb")
+            image_file.write(image.image_data)
+            print("Saving image as {0}-image-{1}.jpg".format(self.filename, iterator))
+            image_file.close()
+            iterator += 1
 
     def get_fields(self) -> List[str]:
         return [
@@ -86,19 +102,29 @@ class Mp3Parser(BaseParser):
             FIELD_RELEASE_DATE,
             FIELD_TAGGING_DATE,
             FIELD_TERMS_OF_USE,
+            FIELD_IMAGE,
         ]
 
     def set_field(self, field: str, value: Optional[str]) -> None:
+        super().set_field(field, value)
         if self.__tag is None:
-            raise TypeError("Tag is null, parse the file first")
-        if field not in self.get_fields():
-            raise KeyError("Field not present in parser")
-        setattr(self.__tag, field, value)
+            raise ValueError("Parse the file first")
+        if field == FIELD_IMAGE and value is not None:
+            with open(value, "rb") as image:
+                self.__tag.images.set(3, image.read(), "image/jpeg", "Description")
+        elif field == FIELD_IMAGE and value is None:
+            descriptions = [audioImage.description for audioImage in self.__tag.images]
+            for description in descriptions:
+                self.__tag.images.remove(description)
+
+        else:
+            setattr(self.__tag, field, value)
 
     def clear(self):
         self.__tag.clear()
 
     def delete_field(self, field: str) -> None:
+        super().delete_field(field)
         self.set_field(field, None)
 
     def get_all_values(self) -> Dict[str, str]:
@@ -108,9 +134,15 @@ class Mp3Parser(BaseParser):
         for field in self.get_fields():
             if hasattr(self.__tag, field):
                 attr = getattr(self.__tag, field, None)
-                if attr is not None and (isinstance(attr, tuple) and any(attr)):
+                if attr is not None and not (isinstance(attr, tuple) and any(attr)):
                     values[field] = attr
         return values
 
     def write(self) -> None:
         self.__tag.save()  # type: ignore
+
+    def print(self) -> None:
+        super().print()
+        if getattr(self.__tag, FIELD_IMAGE, None) is not None:
+            print("Detected possible image in mp3 file, use print to extract")
+            self.save_image()
