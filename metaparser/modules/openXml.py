@@ -1,10 +1,9 @@
-from typing import Dict, List, Optional
-
 import re  # type: ignore
 import shutil  # type: ignore
 import tempfile  # type: ignore
 import xml.etree.ElementTree  # type: ignore
 import zipfile  # type: ignore
+from typing import Dict, List, Optional
 
 from .base import BaseParser
 
