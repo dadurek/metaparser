@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
+import metaparser.utils as utils
+
 
 class BaseParser(ABC):
     @staticmethod
@@ -38,8 +40,15 @@ class BaseParser(ABC):
             print("No metadata found")
             return
 
-        for v, k in items:
-            print(f"{v}: {k}")
+        for k, v in items:
+            print(f"{k}: {v}")
+
+    def analyze_entropy(self, min_entropy) -> Dict[str, str]:
+        return {
+            k: v
+            for k, v in self.get_all_values().items()
+            if isinstance(v, str) and utils.entropy(v) > min_entropy
+        }
 
     @abstractmethod
     def write(self) -> None:

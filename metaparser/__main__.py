@@ -313,6 +313,68 @@ def print_file(file, verbose, debug):
         parser.print()
 
 
+# analyze entropy, default entropy value is 6
+@cli.command("entropy")
+@click.option(
+    "-f",
+    "--file",
+    type=click.Path(exists=True, dir_okay=True, resolve_path=True),
+    help="path to the file/directory for parsing",
+    required=True,
+)
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="print info messages",
+)
+@click.option(
+    "-d",
+    "--debug",
+    is_flag=True,
+    default=False,
+    help="print debug messages",
+)
+@click.option("-e", "--entropy", type=float, default=6)
+def entropy(file, verbose, debug, entropy):
+    """print the file"""
+    if verbose:
+        logging.getLogger().setLevel("INFO")
+    if debug:
+        logging.getLogger().setLevel("DEBUG")
+
+    if os.path.isdir(file):
+        for root, _, files in os.walk(file):
+            for file in files:
+                path = os.path.join(root, file)
+                parser_cls = ParserFactory.get_parser_for_file(path)
+                if parser_cls is None:
+                    logging.info(f"Skipping {file} as no parser have been found")
+                    continue
+                parser = parser_cls()
+
+                parser.parse(path)
+
+                d = parser.analyze_entropy(entropy).items()
+                if len(d) == 0:
+                    continue
+
+                print(f"{file}:")
+                for k, v in d:
+                    print(f"{k}: {v}")
+                print()
+    else:
+        parser_cls = ParserFactory.get_parser_for_file(file)
+        if parser_cls is None:
+            raise Exception("Cannot find parser for file")
+
+        parser = parser_cls()
+        parser.parse(file)
+        for k, v in parser.analyze_entropy(entropy).items():
+            print(f"{k}: {v}")
+
+
 def entry_point():
     try:
         cli()
