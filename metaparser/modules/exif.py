@@ -25,9 +25,11 @@ class ExifParser(BaseParser):
         return self.__img.get_all()
 
     def set_field(self, field: str, value: Optional[str]) -> None:
+        super().set_field(field, value)
         self.__img.set(field, value)
 
     def delete_field(self, field: str) -> None:
+        super().delete_field(field)
         self.__img.delete(field)
 
     def clear(self) -> None:

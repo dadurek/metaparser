@@ -1,8 +1,8 @@
-import re  # type: ignore
-import shutil  # type: ignore
-import tempfile  # type: ignore
-import xml.etree.ElementTree  # type: ignore
-import zipfile  # type: ignore
+import re
+import shutil
+import tempfile
+import xml.etree.ElementTree as ElementTree
+import zipfile
 from typing import Dict, List, Optional
 
 from .base import BaseParser
@@ -45,15 +45,15 @@ class OpenXmlParser(BaseParser):
 
     def __init__(self) -> None:
         super().__init__()
-        self.__tree: xml.etree.ElementTree.Element
+        self.__tree: ElementTree.Element
         self.__path: str
 
     def parse(self, filename: str) -> None:
         xml_string = zipfile.ZipFile(filename).read(XML_LOCATION)
-        self.__tree = xml.etree.ElementTree.fromstring(xml_string)
+        self.__tree = ElementTree.fromstring(xml_string)
         self.__path = filename
         for key, value in NAMESPACES.items():
-            xml.etree.ElementTree.register_namespace(key, value)
+            ElementTree.register_namespace(key, value)
 
     def get_fields(self) -> List[str]:
         return [
@@ -97,7 +97,7 @@ class OpenXmlParser(BaseParser):
         return values
 
     def write(self) -> None:
-        xmlString = xml.etree.ElementTree.tostring(self.__tree).decode("utf-8")
+        xmlString = ElementTree.tostring(self.__tree).decode("utf-8")
         xmlString = XML_DECLARATION + xmlString
 
         temp = tempfile.NamedTemporaryFile()

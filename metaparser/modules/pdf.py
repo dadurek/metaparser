@@ -48,10 +48,16 @@ class PDFParser(BaseParser):
             self.metadata[field] = metadata[field]
 
     def set_field(self, field: str, value: Any) -> None:
+        super().set_field(field, value)
         if not field.startswith("/"):
             raise ValueError("Bad name for field")
         self.metadata[field] = value
-        self.write()
+
+    def delete_field(self, field: str) -> None:
+        super().delete_field(field)
+        if not field.startswith("/"):
+            raise ValueError("Bad name for field")
+        del self.metadata[field]
 
     def write(self) -> None:
         pdf_merger = PdfFileMerger()
