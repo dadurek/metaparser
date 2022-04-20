@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
-import metaparser.utils as utils
+import src.utils as utils
 
 
 class BaseParser(ABC):

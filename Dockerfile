@@ -5,7 +5,7 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./metaparser /app/metaparser
+COPY src /app/metaparser
 COPY ./bin /app/bin
 COPY ./setup.* /app/
 
